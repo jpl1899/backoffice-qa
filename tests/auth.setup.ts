@@ -50,6 +50,8 @@ setup("authenticate as whitelisted admin", async ({ page }) => {
 
   // Assert: the session is valid and the admin is let in
   await expect(page).toHaveURL(/\/usuarios$/);
+  await expect(page.getByRole('heading', { name: 'Usuarios' })).toBeVisible();
+
 
   // Save session for other tests
   await page.context().storageState({ path: authFile });
