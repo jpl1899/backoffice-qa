@@ -8,6 +8,8 @@ const secretKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const adminEmail = process.env.ADMIN_EMAIL;
 const authFile = "playwright/.auth/admin.json";
 
+setup.setTimeout(120_000); // Render free tier can take ~1 min to wake up
+
 setup("authenticate as whitelisted admin", async ({ page }) => {
   // Arrange: env check, magic link, session cookies
   if (!supabaseUrl || !publishableKey || !secretKey || !adminEmail) {
@@ -49,9 +51,12 @@ setup("authenticate as whitelisted admin", async ({ page }) => {
   await page.goto("/usuarios");
 
   // Assert: the session is valid and the admin is let in
-  await expect(page).toHaveURL(/\/usuarios$/);
-  await expect(page.getByRole('heading', { name: 'Usuarios' })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Usuarios" })).toBeVisible({
+    timeout: 90_000,
+  });
 
+  await expect(page).toHaveURL(/\/usuarios$/);
+  await expect(page.getByRole("heading", { name: "Usuarios" })).toBeVisible();
 
   // Save session for other tests
   await page.context().storageState({ path: authFile });
